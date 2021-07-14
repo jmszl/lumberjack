@@ -178,7 +178,11 @@ func (l *Logger) close() error {
 	err := l.file.Close()
 	l.file = nil
 
-	l.stopMillCh <- true
+	select {
+	case l.stopMillCh <- true:
+	case <-time.After(time.Second):
+		return nil
+	}
 	return err
 }
 
